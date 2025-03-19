@@ -16,16 +16,27 @@ import { Currency } from "@/app/types";
 export function CurrencyTable({ data }: { data: Currency[] }) {
   const [search, setSearch] = React.useState("");
 
-  const filteredData = data.filter(
-    (curr) =>
-      curr.currency.toLowerCase().includes(search.toLowerCase()) ||
-      Currencies[curr.currency].name
-        .toLowerCase()
-        .includes(search.toLowerCase())
-  );
+  const sanitizeSearch = (input: string) => {
+    return input
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .replace(/\s+/g, "")
+      .toLowerCase();
+  };
+
+  const filteredData = data.filter((curr) => {
+    const sanitizedSearch = sanitizeSearch(search);
+    const currencyName =
+      Currencies[curr.currency as keyof typeof Currencies].name;
+
+    return (
+      sanitizeSearch(curr.currency).includes(sanitizedSearch) ||
+      sanitizeSearch(currencyName).includes(sanitizedSearch)
+    );
+  });
+
   return (
-    <div>
-      <div className="sticky top-0 z-20 bg-background">
+    <>
+      <div className="sticky top-0 z-20 bg-background py-2">
         <Input
           className="w-full"
           type="text"
@@ -35,11 +46,11 @@ export function CurrencyTable({ data }: { data: Currency[] }) {
         />
       </div>
       <Table>
-        <TableHeader className="sticky top-[36px] z-20 bg-background">
+        <TableHeader className="sticky top-[52px] z-20 bg-background">
           <TableRow>
             <TableHead>Currency</TableHead>
-            <TableHead>Rates</TableHead>
-            <TableHead>Change %</TableHead>
+            <TableHead className="text-right">Rates</TableHead>
+            <TableHead className="text-right">Change %</TableHead>
             <TableHead className="text-right">Change</TableHead>
           </TableRow>
         </TableHeader>
@@ -75,13 +86,13 @@ export function CurrencyTable({ data }: { data: Currency[] }) {
                   </span>
                 </div>
               </TableCell>
-              <TableCell>{curr.formatRates}</TableCell>
+              <TableCell className="text-right">{curr.formatRates}</TableCell>
               {parseFloat(curr.changePercentage) < 0 ? (
-                <TableCell>
+                <TableCell className="text-right">
                   <span className="text-red-600">{curr.changePercentage}%</span>
                 </TableCell>
               ) : (
-                <TableCell>
+                <TableCell className="text-right">
                   <span className="text-green-600">
                     {curr.changePercentage}%
                   </span>
@@ -94,6 +105,6 @@ export function CurrencyTable({ data }: { data: Currency[] }) {
           ))}
         </TableBody>
       </Table>
-    </div>
+    </>
   );
 }
