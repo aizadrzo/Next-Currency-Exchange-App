@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import { Currencies, imageUrl } from "@/lib/constant";
@@ -9,15 +10,32 @@ import {
   TableRow,
   TableCell,
 } from "./ui/table";
-import { getLatestRates } from "@/app/getLatestRates";
+import { Input } from "./ui/input";
+import { Currency } from "@/app/types";
 
-export async function CurrencyTable() {
-  const data = await getLatestRates();
+export function CurrencyTable({ data }: { data: Currency[] }) {
+  const [search, setSearch] = React.useState("");
 
+  const filteredData = data.filter(
+    (curr) =>
+      curr.currency.toLowerCase().includes(search.toLowerCase()) ||
+      Currencies[curr.currency].name
+        .toLowerCase()
+        .includes(search.toLowerCase())
+  );
   return (
-    <div className="h-[63vh] relative overflow-auto hide-scrollbar">
+    <div>
+      <div className="sticky top-0 z-20 bg-background">
+        <Input
+          className="w-full"
+          type="text"
+          placeholder="Search..."
+          onChange={(e) => setSearch(e.target.value)}
+          value={search}
+        />
+      </div>
       <Table>
-        <TableHeader className="sticky top-0 z-20 bg-background">
+        <TableHeader className="sticky top-[36px] z-20 bg-background">
           <TableRow>
             <TableHead>Currency</TableHead>
             <TableHead>Rates</TableHead>
@@ -26,17 +44,13 @@ export async function CurrencyTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((curr) => (
+          {filteredData?.map((curr) => (
             <TableRow key={curr.currency}>
               <TableCell className="flex items-center gap-2">
                 <div className="relative w-10">
                   <Image
                     className="relative z-10"
-                    src={imageUrl(
-                      Currencies[
-                        curr.currency as keyof typeof Currencies
-                      ].code.toLowerCase()
-                    )}
+                    src={imageUrl(Currencies[curr.currency].code.toLowerCase())}
                     width={24}
                     height={24}
                     alt={curr.currency}
@@ -44,9 +58,7 @@ export async function CurrencyTable() {
                   <Image
                     className="absolute top-0 left-[35%]"
                     src={imageUrl(
-                      Currencies[
-                        curr.baseCurrency as keyof typeof Currencies
-                      ].code.toLowerCase()
+                      Currencies[curr.baseCurrency].code.toLowerCase()
                     )}
                     width={24}
                     height={24}
@@ -58,24 +70,12 @@ export async function CurrencyTable() {
                     {curr.currency}/{curr.baseCurrency}
                   </span>{" "}
                   <span className="text-neutral-500 hidden sm:block">
-                    {Currencies[curr.currency as keyof typeof Currencies].name}{" "}
-                    /{" "}
-                    {
-                      Currencies[curr.baseCurrency as keyof typeof Currencies]
-                        .name
-                    }
+                    {Currencies[curr.currency].name} /{" "}
+                    {Currencies[curr.baseCurrency].name}
                   </span>
                 </div>
               </TableCell>
-              <TableCell>
-                {new Intl.NumberFormat(
-                  Currencies[curr.currency as keyof typeof Currencies].locale,
-                  {
-                    style: "currency",
-                    currency: curr.currency,
-                  }
-                ).format(curr.rate)}
-              </TableCell>
+              <TableCell>{curr.formatRates}</TableCell>
               {parseFloat(curr.changePercentage) < 0 ? (
                 <TableCell>
                   <span className="text-red-600">{curr.changePercentage}%</span>

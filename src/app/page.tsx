@@ -1,9 +1,11 @@
 import { CurrencyTable } from "@/components/CurrencyTable";
+import { getLatestRates } from "./getLatestRates";
 
-export default function Home() {
+export default async function Home() {
+  const data = await getLatestRates();
   return (
     <div>
-      <CurrencyTable />
+      <CurrencyTable data={data} />
     </div>
   );
 }
