@@ -11,8 +11,6 @@ import {
   TableCell,
 } from "./ui/table";
 import { ChevronsUpDown } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -57,7 +55,7 @@ export function CurrencyTable({ data }: { data: Currency[] }) {
   return (
     <>
       <div className="sticky top-0 z-20 bg-background py-2">
-        <div className="flex flex-col md:flex-row gap-1">
+        <div className="flex flex-col md:flex-row gap-1 w-full">
           <Input
             className="w-full flex-1"
             type="text"
@@ -185,13 +183,13 @@ export function CurrencyTable({ data }: { data: Currency[] }) {
                 <TableCell className="text-right">{curr.formatRates}</TableCell>
                 {parseFloat(curr.changePercentage) < 0 ? (
                   <TableCell className="text-right">
-                    <span className="text-red-600">
+                    <span className="text-red-400">
                       {curr.changePercentage}%
                     </span>
                   </TableCell>
                 ) : (
                   <TableCell className="text-right">
-                    <span className="text-green-600">
+                    <span className="text-green-400">
                       {curr.changePercentage}%
                     </span>
                   </TableCell>
