@@ -10,12 +10,31 @@ import {
   TableRow,
   TableCell,
 } from "./ui/table";
+import { ChevronsUpDown } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "./ui/input";
 import { Currency } from "@/app/types";
 import { Search } from "lucide-react";
 
 export function CurrencyTable({ data }: { data: Currency[] }) {
   const [search, setSearch] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState(data[0].baseCurrency || "EUR");
 
   const sanitizeSearch = (input: string) => {
     return input
@@ -38,16 +57,73 @@ export function CurrencyTable({ data }: { data: Currency[] }) {
   return (
     <>
       <div className="sticky top-0 z-20 bg-background py-2">
-        <Input
-          className="w-full"
-          type="text"
-          placeholder="Search..."
-          onChange={(e) => setSearch(e.target.value)}
-          value={search}
-        />
+        <div className="flex flex-col md:flex-row gap-1">
+          <Input
+            className="w-full flex-1"
+            type="text"
+            placeholder="Search..."
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
+          />
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full sm:w-[250px]"
+              >
+                {value ? (
+                  <Image
+                    width={16}
+                    height={16}
+                    src={imageUrl(Currencies[value]?.code.toLowerCase())}
+                    alt={Currencies[value]?.name}
+                  />
+                ) : null}
+                <span className="text-left">
+                  {value ? Currencies[value]?.name : "Select currencies..."}
+                </span>
+                <ChevronsUpDown className="opacity-50 ml-auto" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0">
+              <Command>
+                <CommandInput
+                  placeholder="Select currencies..."
+                  className="h-9"
+                />
+                <CommandList>
+                  <CommandEmpty>No currency found.</CommandEmpty>
+                  <CommandGroup>
+                    {Object.entries(Currencies).map(([code, curr]) => (
+                      <CommandItem
+                        key={code}
+                        value={code}
+                        onSelect={() => {
+                          setValue(value === code ? "" : code);
+                          setOpen(false);
+                        }}
+                        className={value === code ? "bg-red" : ""}
+                      >
+                        <Image
+                          width={16}
+                          height={16}
+                          src={imageUrl(curr.code.toLowerCase())}
+                          alt={Currencies[code as keyof typeof Currencies].name}
+                        />
+                        {curr.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
       <Table>
-        <TableHeader className="sticky top-[52px] z-20 bg-background">
+        <TableHeader className="sticky top-[85px] md:top-[52px] z-20 bg-background">
           <TableRow>
             <TableHead>Currency</TableHead>
             <TableHead className="text-right">Rates</TableHead>
