@@ -1,4 +1,4 @@
-import { CurrencyTable } from "@/components/CurrencyTable";
+import { CurrencyList } from "@/components/CurrencyList";
 import { CurrencyTableSkeleton } from "@/components/CurrencyTableSkeleton";
 import { getLatestRates } from "./getLatestRates";
 import { Suspense } from "react";
@@ -10,7 +10,7 @@ export default async function Home() {
     <div>
       <Hero />
       <Suspense fallback={<CurrencyTableSkeleton />}>
-        <CurrencyTable data={data} />
+        <CurrencyList data={data} />
       </Suspense>
     </div>
   );
