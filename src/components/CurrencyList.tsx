@@ -2,13 +2,38 @@
 import React from "react";
 import { Currencies } from "@/lib/constant";
 import { Input } from "./ui/input";
-import { Currency } from "@/app/types";
 import { CurrencySelector } from "./CurrencySelector";
 import { CurrencyTable } from "./CurrencyTable";
+import { getLatestRates } from "@/app/getLatestRates";
+import { Currency } from "@/app/types";
+import { CurrencyTableSkeleton } from "./CurrencyTableSkeleton";
 
-export function CurrencyList({ data }: { data: Currency[] }) {
+export function CurrencyList() {
   const [search, setSearch] = React.useState("");
-  const [value, setValue] = React.useState(data[0].baseCurrency || "EUR");
+  const [data, setData] = React.useState<Currency[]>([]);
+  const [isPending, startTransition] = React.useTransition();
+  const [error, setError] = React.useState<string | null>(null);
+  const [value, setValue] = React.useState<Currency["baseCurrency"]>("EUR");
+
+  const fetchData = () => {
+    startTransition(async () => {
+      try {
+        const rates = await getLatestRates(value);
+        setData(rates);
+        setValue(rates[0]?.baseCurrency);
+      } catch (err) {
+        setError("Failed to fetch data. Please try again later.");
+      }
+    });
+  };
+
+  React.useEffect(() => {
+    fetchData();
+  }, [value]);
+
+  if (isPending) <CurrencyTableSkeleton />;
+
+  if (error) <div className="text-red-500">{error}</div>;
 
   const sanitizeSearch = (input: string) => {
     return input
@@ -42,7 +67,7 @@ export function CurrencyList({ data }: { data: Currency[] }) {
           <CurrencySelector value={value} onValueChange={setValue} />
         </div>
       </div>
-      <CurrencyTable data={filteredData} />
+      <CurrencyTable data={filteredData} search={search} />
     </>
   );
 }

@@ -10,7 +10,13 @@ import {
 import { Search } from "lucide-react";
 import { CurrencyTableRow } from "./CurrencyTableRow";
 
-export const CurrencyTable = ({ data }: { data: Currency[] }) => {
+export const CurrencyTable = ({
+  data,
+  search = "",
+}: {
+  data: Currency[];
+  search?: string;
+}) => {
   return (
     <Table>
       <TableHeader className="sticky top-[85px] md:top-[52px] z-20 bg-background">
@@ -22,7 +28,7 @@ export const CurrencyTable = ({ data }: { data: Currency[] }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.length < 1 ? (
+        {data.length < 1 && search !== "" ? (
           <TableRow className="text-center hover:bg-inherit">
             <TableCell colSpan={4} className="py-10 sm:py-12">
               <div className="flex flex-col items-center justify-center space-y-4">
@@ -30,7 +36,7 @@ export const CurrencyTable = ({ data }: { data: Currency[] }) => {
                   <Search className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold">
-                  Invalid Currency
+                  {search ? `No result for "${search}"` : `No results`}
                 </h3>
                 <p className="mt-1 text-sm sm:text-base max-w-md w-fit">
                   We couldn’t find a currency with that name.

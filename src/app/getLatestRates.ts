@@ -1,3 +1,4 @@
+"use server"
 import { baseUrl, Currencies } from "@/lib/constant";
 import { Currency } from "./types";
 
