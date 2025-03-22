@@ -6,7 +6,6 @@ import { CurrencySelector } from "./CurrencySelector";
 import { CurrencyTable } from "./CurrencyTable";
 import { getLatestRates } from "@/app/getLatestRates";
 import { Currency } from "@/app/types";
-import { CurrencyTableSkeleton } from "./CurrencyTableSkeleton";
 
 export function CurrencyList() {
   const [search, setSearch] = React.useState("");

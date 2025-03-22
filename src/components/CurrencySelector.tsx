@@ -48,7 +48,6 @@ export function CurrencySelector({
             role="combobox"
             aria-expanded={openBottomSheet}
             className="w-full sm:w-[250px] flex sm:hidden mt-1"
-            onClick={() => setOpenBottomSheet(true)}
           >
             {value ? (
               <Image
@@ -72,14 +71,14 @@ export function CurrencySelector({
             <SheetTitle>Select Currency</SheetTitle>
           </SheetHeader>
           <Command>
-            <CommandInput placeholder="Select currencies..." className="h-9" />
+            <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
                 {Object.entries(Currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    value={code}
+                    value={`${code} ${curr.name}`}
                     onSelect={() => {
                       onValueChange(value === code ? "" : code);
                       setOpenBottomSheet(false);
@@ -99,6 +98,7 @@ export function CurrencySelector({
           </Command>
         </SheetContent>
       </Sheet>
+
       {/* Desktop View */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -124,14 +124,14 @@ export function CurrencySelector({
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder="Select currencies..." className="h-9" />
+            <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
                 {Object.entries(Currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    value={code}
+                    value={`${code} ${curr.name}`}
                     onSelect={() => {
                       onValueChange(value === code ? "" : code);
                       setOpen(false);
