@@ -31,8 +31,6 @@ export function CurrencyList() {
     fetchData();
   }, [value]);
 
-  if (isPending) <CurrencyTableSkeleton />;
-
   if (error) <div className="text-red-500">{error}</div>;
 
   const sanitizeSearch = (input: string) => {
