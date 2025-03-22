@@ -1,3 +1,4 @@
+"use server"
 import { baseUrl, Currencies } from "@/lib/constant";
 import { Currency } from "./types";
 
@@ -5,13 +6,13 @@ type CurrencyRates = {
   [currency in keyof typeof Currencies]: number;
 };
 
-export const getLatestRates = async (): Promise<Currency[]> => {
+export const getLatestRates = async (base: keyof typeof Currencies = "MYR"): Promise<Currency[]> => {
   const today = new Date();
   const copyOfToday = new Date(today);
   copyOfToday.setDate(today.getDate() - 60);
   const daysAgo = copyOfToday.toISOString().split("T")[0];
 
-  const response = await fetch(`${baseUrl}/${daysAgo}..`);
+  const response = await fetch(`${baseUrl}/${daysAgo}..?base=${base}`);
   if (!response.ok) throw new Error("Failed to fetch data");
   const ratesData = await response.json();
 
