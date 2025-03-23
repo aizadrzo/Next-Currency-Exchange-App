@@ -112,7 +112,7 @@ export function CurrencySelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="hidden sm:flex"
+            className="hidden w-full sm:flex"
           >
             {value ? (
               <Image
