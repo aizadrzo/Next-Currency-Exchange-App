@@ -10,23 +10,24 @@ import { Currency } from "@/app/types";
 export function CurrencyList() {
   const [search, setSearch] = React.useState("");
   const [data, setData] = React.useState<Currency[]>([]);
-  const [isPending, startTransition] = React.useTransition();
+  const [, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
   const [value, setValue] = React.useState<Currency["baseCurrency"]>("EUR");
 
-  const fetchData = () => {
-    startTransition(async () => {
-      try {
-        const rates = await getLatestRates(value);
-        setData(rates);
-        setValue(rates[0]?.baseCurrency);
-      } catch (err) {
-        setError("Failed to fetch data. Please try again later.");
-      }
-    });
-  };
-
   React.useEffect(() => {
+    const fetchData = () => {
+      startTransition(async () => {
+        try {
+          const rates = await getLatestRates(value);
+          setData(rates);
+          setValue(rates[0]?.baseCurrency);
+        } catch (err) {
+          console.error(err);
+          setError("Failed to fetch data. Please try again later.");
+        }
+      });
+    };
+
     fetchData();
   }, [value]);
 
@@ -51,9 +52,9 @@ export function CurrencyList() {
   });
 
   return (
-    <>
-      <div className="sticky top-0 z-20 bg-background py-2">
-        <div className="flex flex-col md:flex-row gap-1 w-full">
+    <div className="relative">
+      <div className="sticky top-0 z-20 bg-background py-2 w-full">
+        <div className="flex flex-col md:flex-row gap-1 w-full bg-background">
           <Input
             className="w-full flex-1"
             type="text"
@@ -65,6 +66,6 @@ export function CurrencyList() {
         </div>
       </div>
       <CurrencyTable data={filteredData} search={search} />
-    </>
+    </div>
   );
 }

@@ -39,7 +39,7 @@ export function CurrencySelector({
   const [openBottomSheet, setOpenBottomSheet] = React.useState(false);
 
   return (
-    <>
+    <div className="w-full sm:w-[250px]">
       {/* Mobile View */}
       <Sheet open={openBottomSheet} onOpenChange={setOpenBottomSheet}>
         <SheetTrigger asChild>
@@ -47,7 +47,7 @@ export function CurrencySelector({
             variant="outline"
             role="combobox"
             aria-expanded={openBottomSheet}
-            className="w-full sm:w-[250px] flex sm:hidden mt-1"
+            className="flex sm:hidden mt-1 w-full"
           >
             {value ? (
               <Image
@@ -71,15 +71,21 @@ export function CurrencySelector({
             <SheetTitle>Select Currency</SheetTitle>
           </SheetHeader>
           <Command>
-            <CommandInput placeholder="Search currencies..." className="h-9" />
+            <CommandInput
+              // @ts-expect-error- Something wrong with this component
+              placeholder="Search currencies..."
+              className="h-9"
+            />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
                 {Object.entries(Currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    value={`${code} ${curr.name}`}
+                    // @ts-expect-error- TODO: fix value type is equal string
+                    value={code}
                     onSelect={() => {
+                      // @ts-expect-error- TODO: fix value type is equal string
                       onValueChange(value === code ? "" : code);
                       setOpenBottomSheet(false);
                     }}
@@ -106,7 +112,7 @@ export function CurrencySelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full sm:w-[250px] hidden sm:flex"
+            className="hidden w-full sm:flex"
           >
             {value ? (
               <Image
@@ -124,15 +130,21 @@ export function CurrencySelector({
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder="Search currencies..." className="h-9" />
+            <CommandInput
+              // @ts-expect-error - Something wrong with this component
+              placeholder="Search currencies..."
+              className="h-9"
+            />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
                 {Object.entries(Currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
+                    // @ts-expect-error - TODO: fix value type is equal string
                     value={`${code} ${curr.name}`}
                     onSelect={() => {
+                      // @ts-expect-error - TODO: fix value type is equal string
                       onValueChange(value === code ? "" : code);
                       setOpen(false);
                     }}
@@ -151,6 +163,6 @@ export function CurrencySelector({
           </Command>
         </PopoverContent>
       </Popover>
-    </>
+    </div>
   );
 }
