@@ -1,4 +1,6 @@
-// @ts-nocheck - Putting this for now until Radix updated this to support latest React
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 "use client";
 
 import * as React from "react";
@@ -14,7 +16,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type ReactChildren = { children: React.ReactNode };
+// This is a temp fix
+type ReactChildren = {
+  children: React.ReactNode;
+  className: string;
+};
 
 function Command({
   className,
@@ -59,7 +65,7 @@ function CommandDialog({
 function CommandInput({
   className,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input>) {
+}: React.ComponentProps<typeof CommandPrimitive.Input> & ReactChildren) {
   return (
     <div
       data-slot="command-input-wrapper"
