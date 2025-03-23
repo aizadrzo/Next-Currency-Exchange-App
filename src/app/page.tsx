@@ -1,6 +1,5 @@
 import { CurrencyList } from "@/components/CurrencyList";
 import { CurrencyTableSkeleton } from "@/components/CurrencyTableSkeleton";
-import { getLatestRates } from "./getLatestRates";
 import { Suspense } from "react";
 import { Hero } from "@/components/Hero";
 

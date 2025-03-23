@@ -10,23 +10,24 @@ import { Currency } from "@/app/types";
 export function CurrencyList() {
   const [search, setSearch] = React.useState("");
   const [data, setData] = React.useState<Currency[]>([]);
-  const [isPending, startTransition] = React.useTransition();
+  const [, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
   const [value, setValue] = React.useState<Currency["baseCurrency"]>("EUR");
 
-  const fetchData = () => {
-    startTransition(async () => {
-      try {
-        const rates = await getLatestRates(value);
-        setData(rates);
-        setValue(rates[0]?.baseCurrency);
-      } catch (err) {
-        setError("Failed to fetch data. Please try again later.");
-      }
-    });
-  };
-
   React.useEffect(() => {
+    const fetchData = () => {
+      startTransition(async () => {
+        try {
+          const rates = await getLatestRates(value);
+          setData(rates);
+          setValue(rates[0]?.baseCurrency);
+        } catch (err) {
+          console.error(err);
+          setError("Failed to fetch data. Please try again later.");
+        }
+      });
+    };
+
     fetchData();
   }, [value]);
 
