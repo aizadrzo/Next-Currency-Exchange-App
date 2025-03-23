@@ -1,3 +1,4 @@
+// @ts-nocheck - Putting this for now until Radix updated this to support latest React
 "use client";
 
 import * as React from "react";
@@ -13,10 +14,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+type ReactChildren = { children: React.ReactNode };
+
 function Command({
   className,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive>) {
+}: React.ComponentProps<typeof CommandPrimitive> & ReactChildren) {
   return (
     <CommandPrimitive
       data-slot="command"
@@ -78,7 +81,7 @@ function CommandInput({
 function CommandList({
   className,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.List>) {
+}: React.ComponentProps<typeof CommandPrimitive.List> & ReactChildren) {
   return (
     <CommandPrimitive.List
       data-slot="command-list"
@@ -93,7 +96,7 @@ function CommandList({
 
 function CommandEmpty({
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Empty>) {
+}: React.ComponentProps<typeof CommandPrimitive.Empty> & ReactChildren) {
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
@@ -106,7 +109,7 @@ function CommandEmpty({
 function CommandGroup({
   className,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Group>) {
+}: React.ComponentProps<typeof CommandPrimitive.Group> & ReactChildren) {
   return (
     <CommandPrimitive.Group
       data-slot="command-group"
@@ -135,7 +138,7 @@ function CommandSeparator({
 function CommandItem({
   className,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Item>) {
+}: React.ComponentProps<typeof CommandPrimitive.Item> & ReactChildren) {
   return (
     <CommandPrimitive.Item
       data-slot="command-item"
