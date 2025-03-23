@@ -52,9 +52,9 @@ export function CurrencyList() {
   });
 
   return (
-    <>
-      <div className="sticky top-0 z-20 bg-background py-2">
-        <div className="flex flex-col md:flex-row gap-1 w-full">
+    <div className="relative">
+      <div className="sticky top-0 z-20 bg-background py-2 w-full">
+        <div className="flex flex-col md:flex-row gap-1 w-full bg-background">
           <Input
             className="w-full flex-1"
             type="text"
@@ -66,6 +66,6 @@ export function CurrencyList() {
         </div>
       </div>
       <CurrencyTable data={filteredData} search={search} />
-    </>
+    </div>
   );
 }

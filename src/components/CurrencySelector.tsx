@@ -39,7 +39,7 @@ export function CurrencySelector({
   const [openBottomSheet, setOpenBottomSheet] = React.useState(false);
 
   return (
-    <>
+    <div className="w-full sm:w-[250px]">
       {/* Mobile View */}
       <Sheet open={openBottomSheet} onOpenChange={setOpenBottomSheet}>
         <SheetTrigger asChild>
@@ -47,7 +47,7 @@ export function CurrencySelector({
             variant="outline"
             role="combobox"
             aria-expanded={openBottomSheet}
-            className="w-full sm:w-[250px] flex sm:hidden mt-1"
+            className="flex sm:hidden mt-1 w-full"
           >
             {value ? (
               <Image
@@ -83,7 +83,7 @@ export function CurrencySelector({
                   <CommandItem
                     key={code}
                     // @ts-expect-error- TODO: fix value type is equal string
-                    value={`${code} ${curr.name}`}
+                    value={code}
                     onSelect={() => {
                       // @ts-expect-error- TODO: fix value type is equal string
                       onValueChange(value === code ? "" : code);
@@ -112,7 +112,7 @@ export function CurrencySelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full sm:w-[250px] hidden sm:flex"
+            className="hidden sm:flex"
           >
             {value ? (
               <Image
@@ -163,6 +163,6 @@ export function CurrencySelector({
           </Command>
         </PopoverContent>
       </Popover>
-    </>
+    </div>
   );
 }
