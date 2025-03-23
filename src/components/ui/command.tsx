@@ -19,7 +19,6 @@ import {
 // This is a temp fix
 type ReactChildren = {
   children: React.ReactNode;
-  className: string;
 };
 
 function Command({
