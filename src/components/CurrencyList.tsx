@@ -4,34 +4,14 @@ import { Currencies } from "@/lib/constant";
 import { Input } from "./ui/input";
 import { CurrencySelector } from "./CurrencySelector";
 import { CurrencyTable } from "./CurrencyTable";
-import { getLatestRates } from "@/app/getLatestRates";
 import { Currency } from "@/app/types";
+import { useLatestRates } from "@/hooks/useLatestRates";
+import { CurrencyTableSkeleton } from "./CurrencyTableSkeleton";
 
 export function CurrencyList() {
   const [search, setSearch] = React.useState("");
-  const [data, setData] = React.useState<Currency[]>([]);
-  const [, startTransition] = React.useTransition();
-  const [error, setError] = React.useState<string | null>(null);
   const [value, setValue] = React.useState<Currency["baseCurrency"]>("EUR");
-
-  React.useEffect(() => {
-    const fetchData = () => {
-      startTransition(async () => {
-        try {
-          const rates = await getLatestRates(value);
-          setData(rates);
-          setValue(rates[0]?.baseCurrency);
-        } catch (err) {
-          console.error(err);
-          setError("Failed to fetch data. Please try again later.");
-        }
-      });
-    };
-
-    fetchData();
-  }, [value]);
-
-  if (error) <div className="text-red-500">{error}</div>;
+  const { data, loading } = useLatestRates(value);
 
   const sanitizeSearch = (input: string) => {
     return input
@@ -65,7 +45,11 @@ export function CurrencyList() {
           <CurrencySelector value={value} onValueChange={setValue} />
         </div>
       </div>
-      <CurrencyTable data={filteredData} search={search} />
+      {loading ? (
+        <CurrencyTableSkeleton />
+      ) : (
+        <CurrencyTable data={filteredData} search={search} />
+      )}
     </div>
   );
 }

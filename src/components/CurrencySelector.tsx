@@ -82,10 +82,10 @@ export function CurrencySelector({
                 {Object.entries(Currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    // @ts-expect-error- TODO: fix value type is equal string
-                    value={code}
+                    // @ts-expect-error - TODO: fix value type is equal string
+                    value={`${code} ${curr.name}`}
                     onSelect={() => {
-                      // @ts-expect-error- TODO: fix value type is equal string
+                      // @ts-expect-error - TODO: fix value type is equal string
                       onValueChange(value === code ? "" : code);
                       setOpenBottomSheet(false);
                     }}

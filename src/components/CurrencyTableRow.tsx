@@ -5,7 +5,7 @@ import { TableCell } from "./ui/table";
 
 export const CurrencyTableRow = ({ currency }: { currency: Currency }) => (
   <>
-    <TableCell className="flex items-center gap-2">
+    <TableCell className="flex items-center gap-2 sticky left-0 bg-background z-10 min-w-[180px] group-hover:bg-muted/1 transition-colors">
       <div className="relative w-10">
         <Image
           className="relative z-10"

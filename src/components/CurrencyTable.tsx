@@ -1,14 +1,7 @@
 import { Currency } from "@/app/types";
-import {
-  Table,
-  TableHeader,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "./ui/table";
-import { Search } from "lucide-react";
+import { Table, TableHeader, TableHead, TableBody, TableRow } from "./ui/table";
 import { CurrencyTableRow } from "./CurrencyTableRow";
+import { EmptyCurrencySearch } from "./EmptyCurrencySearch";
 
 export const CurrencyTable = ({
   data,
@@ -18,40 +11,33 @@ export const CurrencyTable = ({
   search?: string;
 }) => {
   return (
-    <Table>
-      <TableHeader className="sticky top-[85px] md:top-[52px] z-20 bg-background">
-        <TableRow>
-          <TableHead>Currency</TableHead>
-          <TableHead className="text-right">Rates</TableHead>
-          <TableHead className="text-right">Change %</TableHead>
-          <TableHead className="text-right">Change</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.length < 1 && search !== "" ? (
-          <TableRow className="text-center hover:bg-inherit">
-            <TableCell colSpan={4} className="py-10 sm:py-12">
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <div className="p-2 bg-muted/50 rounded-full w-fit">
-                  <Search className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl sm:text-2xl font-bold">
-                  {search ? `No result for "${search}"` : `No results`}
-                </h3>
-                <p className="mt-1 text-sm sm:text-base max-w-md w-fit">
-                  We couldn’t find a currency with that name.
-                </p>
-              </div>
-            </TableCell>
+    <div className="relative overflow-x-auto">
+      <Table className="w-full">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="sticky left-0 bg-background z-10 min-w-[180px]">
+              Currency
+            </TableHead>
+            <TableHead className="text-right">Rates</TableHead>
+            <TableHead className="text-right">Change %</TableHead>
+            <TableHead className="text-right">Change</TableHead>
           </TableRow>
-        ) : (
-          data?.map((curr) => (
-            <TableRow key={curr.currency}>
-              <CurrencyTableRow currency={curr} />
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {data.length < 1 && search !== "" ? (
+            <EmptyCurrencySearch search={search} />
+          ) : (
+            data?.map((curr) => (
+              <TableRow
+                key={curr.currency}
+                className="group relative hover:bg-muted/50 cursor-pointer transition-colors"
+              >
+                <CurrencyTableRow currency={curr} />
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
