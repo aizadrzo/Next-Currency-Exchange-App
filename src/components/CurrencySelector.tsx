@@ -2,7 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
-import { Currencies, imageUrl } from "@/lib/constant";
+import { imageUrl } from "@/lib/constant";
+import { CurrencyDictionary } from "@/lib/frankfurter";
 import { ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,11 +29,13 @@ import {
 } from "@/components/ui/popover";
 
 type CurrencySelectorProps = {
-  value: keyof typeof Currencies | "";
-  onValueChange: React.Dispatch<React.SetStateAction<keyof typeof Currencies | "">>;
+  currencies: CurrencyDictionary;
+  value: string | "";
+  onValueChange: React.Dispatch<React.SetStateAction<string | "">>;
 };
 
 export function CurrencySelector({
+  currencies,
   value,
   onValueChange,
 }: CurrencySelectorProps) {
@@ -54,12 +57,12 @@ export function CurrencySelector({
               <Image
                 width={16}
                 height={16}
-                src={imageUrl(Currencies[value]?.code.toLowerCase())}
-                alt={Currencies[value]?.name}
+                src={imageUrl(currencies[value]?.code?.toLowerCase() || 'un')}
+                alt={currencies[value]?.name || value}
               />
             ) : null}
             <span className="text-left">
-              {value ? Currencies[value]?.name : "Select currencies..."}
+              {value && currencies[value] ? currencies[value].name : "Select currencies..."}
             </span>
             <ChevronsUpDown className="opacity-50 ml-auto" />
           </Button>
@@ -78,7 +81,7 @@ export function CurrencySelector({
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
-                {Object.entries(Currencies).map(([code, curr]) => (
+                {Object.entries(currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
                     value={code}
@@ -90,8 +93,8 @@ export function CurrencySelector({
                     <Image
                       width={16}
                       height={16}
-                      src={imageUrl(curr.code.toLowerCase())}
-                      alt={Currencies[code as keyof typeof Currencies].name}
+                      src={imageUrl(curr.code?.toLowerCase() || 'un')}
+                      alt={curr.name}
                     />
                     {curr.name}
                   </CommandItem>
@@ -115,12 +118,12 @@ export function CurrencySelector({
               <Image
                 width={16}
                 height={16}
-                src={imageUrl(Currencies[value]?.code.toLowerCase())}
-                alt={Currencies[value]?.name}
+                src={imageUrl(currencies[value]?.code?.toLowerCase() || 'un')}
+                alt={currencies[value]?.name || value}
               />
             ) : null}
             <span className="text-left">
-              {value ? Currencies[value]?.name : "Select currencies..."}
+              {value && currencies[value] ? currencies[value].name : "Select currencies..."}
             </span>
             <ChevronsUpDown className="opacity-50 ml-auto" />
           </Button>
@@ -132,7 +135,7 @@ export function CurrencySelector({
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
-                {Object.entries(Currencies).map(([code, curr]) => (
+                {Object.entries(currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
                     value={`${code} ${curr.name}`}
@@ -144,8 +147,8 @@ export function CurrencySelector({
                     <Image
                       width={16}
                       height={16}
-                      src={imageUrl(curr.code.toLowerCase())}
-                      alt={Currencies[code as keyof typeof Currencies].name}
+                      src={imageUrl(curr.code?.toLowerCase() || 'un')}
+                      alt={curr.name}
                     />
                     {curr.name}
                   </CommandItem>

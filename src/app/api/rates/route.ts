@@ -1,25 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Currencies } from "@/lib/constant";
+import { getCurrencies } from "@/lib/frankfurter";
 import { Currency } from "@/app/types";
 
 type CurrencyRates = {
-  [currency in keyof typeof Currencies]: number;
+  [currency: string]: number;
 };
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    let base = searchParams.get("base") as keyof typeof Currencies | null;
+    let base = searchParams.get("base");
+    const dynamicDict = await getCurrencies();
 
     // Location detection if base is not explicitly provided
     if (!base) {
       const countryCode = request.headers.get("x-vercel-ip-country");
-      let detectedCurrency: keyof typeof Currencies | null = null;
+      let detectedCurrency: string | null = null;
       
       if (countryCode) {
-        for (const [key, details] of Object.entries(Currencies)) {
+        for (const [isoCode, details] of Object.entries(dynamicDict)) {
           if (details.code === countryCode) {
-            detectedCurrency = key as keyof typeof Currencies;
+            detectedCurrency = isoCode;
             break;
           }
         }
@@ -69,20 +70,18 @@ export async function GET(request: NextRequest) {
       if (row.date === latestDate) latestRates[row.quote] = row.rate;
     });
 
-    const baseCurrency = base as keyof typeof Currencies;
+    const baseCurrency = base;
 
     const data: Currency[] = Object.entries(latestRates)
-      .filter(([currency]) => currency in Currencies)
       .map(([currency, rate]) => {
-      const prev = yesterdayRate[currency as keyof typeof Currencies];
-      const previousRate = prev ?? null;
+      const previousRate = yesterdayRate[currency] ?? null;
       const change = previousRate !== null ? rate - previousRate : 0;
       const changePercentage = previousRate !== null
         ? ((change / previousRate) * 100).toFixed(2)
         : "N/A";
       
-      const currencyMetadata = Currencies[currency as keyof typeof Currencies];
-      const locale = currencyMetadata?.locale || "en-US";
+      const currencyMetadata = dynamicDict[currency];
+      const locale = "en-US";
 
       const formatRates = new Intl.NumberFormat(locale, {
         style: "currency",
@@ -91,7 +90,7 @@ export async function GET(request: NextRequest) {
 
       return {
         baseCurrency: baseCurrency,
-        currency: currency as keyof typeof Currencies,
+        currency: currency,
         rate,
         change,
         changePercentage,

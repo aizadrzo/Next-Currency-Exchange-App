@@ -1,4 +1,5 @@
 import { Currency } from "@/app/types";
+import { CurrencyDictionary } from "@/lib/frankfurter";
 import {
   Table,
   TableHeader,
@@ -13,9 +14,11 @@ import { CurrencyTableRow } from "./CurrencyTableRow";
 export const CurrencyTable = ({
   data,
   search = "",
+  dict,
 }: {
   data: Currency[];
   search?: string;
+  dict: CurrencyDictionary;
 }) => {
   return (
     <Table>
@@ -47,7 +50,7 @@ export const CurrencyTable = ({
         ) : (
           data?.map((curr) => (
             <TableRow key={curr.currency}>
-              <CurrencyTableRow currency={curr} />
+              <CurrencyTableRow currency={curr} dict={dict} />
             </TableRow>
           ))
         )}

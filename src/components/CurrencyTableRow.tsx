@@ -1,22 +1,24 @@
-import Image from "next/image";
-import { Currencies, imageUrl } from "@/lib/constant";
+import { imageUrl } from "@/lib/constant";
+import { CurrencyDictionary } from "@/lib/frankfurter";
 import { Currency } from "@/app/types";
 import { TableCell } from "./ui/table";
 
-export const CurrencyTableRow = ({ currency }: { currency: Currency }) => (
+import Image from "next/image";
+
+export const CurrencyTableRow = ({ currency, dict }: { currency: Currency, dict: CurrencyDictionary }) => (
   <>
     <TableCell className="flex items-center gap-2">
       <div className="relative w-10">
         <Image
           className="relative z-10"
-          src={imageUrl(Currencies[currency.baseCurrency].code.toLowerCase())}
+          src={imageUrl(dict[currency.baseCurrency]?.code?.toLowerCase() || 'un')}
           width={24}
           height={24}
           alt={currency.baseCurrency}
         />
         <Image
           className="absolute top-0 left-[35%]"
-          src={imageUrl(Currencies[currency.currency].code.toLowerCase())}
+          src={imageUrl(dict[currency.currency]?.code?.toLowerCase() || 'un')}
           width={24}
           height={24}
           alt={currency.currency}
@@ -27,8 +29,8 @@ export const CurrencyTableRow = ({ currency }: { currency: Currency }) => (
           {currency.baseCurrency}/{currency.currency}
         </span>{" "}
         <span className="text-neutral-500 hidden sm:block">
-          {Currencies[currency.baseCurrency].name} /{" "}
-          {Currencies[currency.currency].name}
+          {dict[currency.baseCurrency]?.name || currency.baseCurrency} /{" "}
+          {dict[currency.currency]?.name || currency.currency}
         </span>
       </div>
     </TableCell>
