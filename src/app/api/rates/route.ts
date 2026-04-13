@@ -35,12 +35,12 @@ export async function GET(request: NextRequest) {
     copyOfToday.setDate(today.getDate() - 60);
     const daysAgo = copyOfToday.toISOString().split("T")[0];
 
-    // Use v1 endpoint of Frankfurter API because the V2 endpoint returns a flat array of objects (or NDJSON) 
-    // which breaks our date grouped parsing logic. V1 natively groups by date.
-    const frankfurterApiUrl = `https://api.frankfurter.dev/v1/${daysAgo}..?base=${base}`;
+    // Use v2 endpoint of Frankfurter API
+    const frankfurterApiUrl = `https://api.frankfurter.dev/v2/rates?from=${daysAgo}&base=${base}`;
     
     // Cached fetch targeting 1 hour revalidation
     const response = await fetch(frankfurterApiUrl, {
+      headers: { "Accept": "application/json" },
       next: { revalidate: 3600 }
     });
 
@@ -48,9 +48,11 @@ export async function GET(request: NextRequest) {
       throw new Error(`Failed to fetch data from Frankfurter API: ${response.statusText}`);
     }
 
-    const ratesData = await response.json();
-    const baseCurrency = ratesData.base as keyof typeof Currencies;
-    const dates = Object.keys(ratesData.rates);
+    const ratesData: Array<{date: string, base: string, quote: string, rate: number}> = await response.json();
+
+    const datesSet = new Set<string>();
+    ratesData.forEach((row) => datesSet.add(row.date));
+    const dates = Array.from(datesSet).sort();
 
     if (dates.length < 2) {
       return NextResponse.json({ error: "Not enough historical data available" }, { status: 400 });
@@ -59,10 +61,19 @@ export async function GET(request: NextRequest) {
     const yesterday = dates[dates.length - 2];
     const latestDate = dates[dates.length - 1];
 
-    const yesterdayRate = ratesData.rates[yesterday] as CurrencyRates;
-    const latestRates = ratesData.rates[latestDate] as CurrencyRates;
+    const yesterdayRate: Record<string, number> = {};
+    const latestRates: Record<string, number> = {};
 
-    const data: Currency[] = Object.entries(latestRates).map(([currency, rate]) => {
+    ratesData.forEach((row) => {
+      if (row.date === yesterday) yesterdayRate[row.quote] = row.rate;
+      if (row.date === latestDate) latestRates[row.quote] = row.rate;
+    });
+
+    const baseCurrency = base as keyof typeof Currencies;
+
+    const data: Currency[] = Object.entries(latestRates)
+      .filter(([currency]) => currency in Currencies)
+      .map(([currency, rate]) => {
       const prev = yesterdayRate[currency as keyof typeof Currencies];
       const previousRate = prev ?? null;
       const change = previousRate !== null ? rate - previousRate : 0;

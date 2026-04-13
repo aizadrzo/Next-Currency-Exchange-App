@@ -20,8 +20,8 @@ export function CurrencyList() {
         const response = await fetch(`/api/rates${queryParam}`);
         if (!response.ok) throw new Error("Network error");
         
-        const rates = await response.json();
-        if (rates.error) throw new Error(rates.error);
+        const rates: Currency[] = await response.json();
+        if ("error" in rates) throw new Error((rates as any).error);
 
         startTransition(() => {
           setData(rates);

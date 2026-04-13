@@ -19,6 +19,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import {
   Popover,
@@ -69,6 +70,7 @@ export function CurrencySelector({
         >
           <SheetHeader className="pb-0">
             <SheetTitle>Select Currency</SheetTitle>
+            <SheetDescription className="sr-only">Select your base currency for conversions</SheetDescription>
           </SheetHeader>
           <Command>
             {/* @ts-expect-error CommandInput types issue */}
