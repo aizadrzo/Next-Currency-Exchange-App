@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/popover";
 
 type CurrencySelectorProps = {
-  value: keyof typeof Currencies;
-  onValueChange: React.Dispatch<React.SetStateAction<keyof typeof Currencies>>;
+  value: keyof typeof Currencies | "";
+  onValueChange: React.Dispatch<React.SetStateAction<keyof typeof Currencies | "">>;
 };
 
 export function CurrencySelector({
@@ -71,22 +71,17 @@ export function CurrencySelector({
             <SheetTitle>Select Currency</SheetTitle>
           </SheetHeader>
           <Command>
-            <CommandInput
-              // @ts-expect-error- Something wrong with this component
-              placeholder="Search currencies..."
-              className="h-9"
-            />
+            {/* @ts-expect-error CommandInput types issue */}
+            <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
                 {Object.entries(Currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    // @ts-expect-error- TODO: fix value type is equal string
                     value={code}
                     onSelect={() => {
-                      // @ts-expect-error- TODO: fix value type is equal string
-                      onValueChange(value === code ? "" : code);
+                      onValueChange(value === code ? "" : code as any);
                       setOpenBottomSheet(false);
                     }}
                   >
@@ -130,22 +125,17 @@ export function CurrencySelector({
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput
-              // @ts-expect-error - Something wrong with this component
-              placeholder="Search currencies..."
-              className="h-9"
-            />
+            {/* @ts-expect-error CommandInput types issue */}
+            <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
                 {Object.entries(Currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    // @ts-expect-error - TODO: fix value type is equal string
                     value={`${code} ${curr.name}`}
                     onSelect={() => {
-                      // @ts-expect-error - TODO: fix value type is equal string
-                      onValueChange(value === code ? "" : code);
+                      onValueChange(value === code ? "" : code as any);
                       setOpen(false);
                     }}
                   >

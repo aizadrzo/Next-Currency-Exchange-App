@@ -4,7 +4,6 @@ import { Currencies } from "@/lib/constant";
 import { Input } from "./ui/input";
 import { CurrencySelector } from "./CurrencySelector";
 import { CurrencyTable } from "./CurrencyTable";
-import { getLatestRates } from "@/app/getLatestRates";
 import { Currency } from "@/app/types";
 
 export function CurrencyList() {
@@ -12,20 +11,28 @@ export function CurrencyList() {
   const [data, setData] = React.useState<Currency[]>([]);
   const [, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
-  const [value, setValue] = React.useState<Currency["baseCurrency"]>("EUR");
+  const [value, setValue] = React.useState<Currency["baseCurrency"] | "">("");
 
   React.useEffect(() => {
-    const fetchData = () => {
-      startTransition(async () => {
-        try {
-          const rates = await getLatestRates(value);
+    const fetchData = async () => {
+      try {
+        const queryParam = value ? `?base=${value}` : "";
+        const response = await fetch(`/api/rates${queryParam}`);
+        if (!response.ok) throw new Error("Network error");
+        
+        const rates = await response.json();
+        if (rates.error) throw new Error(rates.error);
+
+        startTransition(() => {
           setData(rates);
-          setValue(rates[0]?.baseCurrency);
-        } catch (err) {
-          console.error(err);
-          setError("Failed to fetch data. Please try again later.");
-        }
-      });
+          if (!value && rates[0]?.baseCurrency) {
+            setValue(rates[0].baseCurrency);
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch data. Please try again later.");
+      }
     };
 
     fetchData();
@@ -62,7 +69,7 @@ export function CurrencyList() {
             onChange={(e) => setSearch(e.target.value)}
             value={search}
           />
-          <CurrencySelector value={value} onValueChange={setValue} />
+          <CurrencySelector value={value || "MYR"} onValueChange={setValue} />
         </div>
       </div>
       <CurrencyTable data={filteredData} search={search} />
