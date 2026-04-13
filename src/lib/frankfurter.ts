@@ -2,6 +2,7 @@ export type CurrencyDictionary = Record<string, {
   name: string;
   code: string;
   symbol: string;
+  flag: string;
 }>;
 
 export async function getCurrencies(): Promise<CurrencyDictionary> {
@@ -40,7 +41,8 @@ export async function getCurrencies(): Promise<CurrencyDictionary> {
     dict[currency.iso_code] = {
       name: currency.name,
       code: countryCode, 
-      symbol: currency.symbol || currency.iso_code
+      symbol: currency.symbol || currency.iso_code,
+      flag: `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`
     };
   });
 

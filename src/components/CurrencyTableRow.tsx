@@ -1,4 +1,3 @@
-import { imageUrl } from "@/lib/constant";
 import { CurrencyDictionary } from "@/lib/frankfurter";
 import { Currency } from "@/app/types";
 import { TableCell } from "./ui/table";
@@ -11,14 +10,14 @@ export const CurrencyTableRow = ({ currency, dict }: { currency: Currency, dict:
       <div className="relative w-10">
         <Image
           className="relative z-10"
-          src={imageUrl(dict[currency.baseCurrency]?.code?.toLowerCase() || 'un')}
+          src={dict[currency.baseCurrency]?.flag || "/placeholder-flag.svg"}
           width={24}
           height={24}
           alt={currency.baseCurrency}
         />
         <Image
           className="absolute top-0 left-[35%]"
-          src={imageUrl(dict[currency.currency]?.code?.toLowerCase() || 'un')}
+          src={dict[currency.currency]?.flag || "/placeholder-flag.svg"}
           width={24}
           height={24}
           alt={currency.currency}

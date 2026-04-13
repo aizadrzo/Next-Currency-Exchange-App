@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { imageUrl } from "@/lib/constant";
 import { CurrencyDictionary } from "@/lib/frankfurter";
 import { ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,7 +56,7 @@ export function CurrencySelector({
               <Image
                 width={16}
                 height={16}
-                src={imageUrl(currencies[value]?.code?.toLowerCase() || 'un')}
+                src={currencies[value]?.flag || "/placeholder-flag.svg"}
                 alt={currencies[value]?.name || value}
               />
             ) : null}
@@ -93,7 +92,7 @@ export function CurrencySelector({
                     <Image
                       width={16}
                       height={16}
-                      src={imageUrl(curr.code?.toLowerCase() || 'un')}
+                      src={curr.flag || "/placeholder-flag.svg"}
                       alt={curr.name}
                     />
                     {curr.name}
@@ -118,7 +117,7 @@ export function CurrencySelector({
               <Image
                 width={16}
                 height={16}
-                src={imageUrl(currencies[value]?.code?.toLowerCase() || 'un')}
+                src={currencies[value]?.flag || "/placeholder-flag.svg"}
                 alt={currencies[value]?.name || value}
               />
             ) : null}
@@ -147,7 +146,7 @@ export function CurrencySelector({
                     <Image
                       width={16}
                       height={16}
-                      src={imageUrl(curr.code?.toLowerCase() || 'un')}
+                      src={curr.flag || "/placeholder-flag.svg"}
                       alt={curr.name}
                     />
                     {curr.name}
