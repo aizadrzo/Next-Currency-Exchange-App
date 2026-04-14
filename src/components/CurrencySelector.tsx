@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Currencies, imageUrl } from "@/lib/constant";
+import { CurrencyDictionary } from "@/lib/frankfurter";
 import { ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import {
   Popover,
@@ -27,11 +28,13 @@ import {
 } from "@/components/ui/popover";
 
 type CurrencySelectorProps = {
-  value: keyof typeof Currencies;
-  onValueChange: React.Dispatch<React.SetStateAction<keyof typeof Currencies>>;
+  currencies: CurrencyDictionary;
+  value: string | "";
+  onValueChange: React.Dispatch<React.SetStateAction<string | "">>;
 };
 
 export function CurrencySelector({
+  currencies,
   value,
   onValueChange,
 }: CurrencySelectorProps) {
@@ -53,12 +56,12 @@ export function CurrencySelector({
               <Image
                 width={16}
                 height={16}
-                src={imageUrl(Currencies[value]?.code.toLowerCase())}
-                alt={Currencies[value]?.name}
+                src={currencies[value]?.flag || "/placeholder-flag.svg"}
+                alt={currencies[value]?.name || value}
               />
             ) : null}
             <span className="text-left">
-              {value ? Currencies[value]?.name : "Select currencies..."}
+              {value && currencies[value] ? currencies[value].name : "Select currencies..."}
             </span>
             <ChevronsUpDown className="opacity-50 ml-auto" />
           </Button>
@@ -69,32 +72,27 @@ export function CurrencySelector({
         >
           <SheetHeader className="pb-0">
             <SheetTitle>Select Currency</SheetTitle>
+            <SheetDescription className="sr-only">Select your base currency for conversions</SheetDescription>
           </SheetHeader>
           <Command>
-            <CommandInput
-              // @ts-expect-error- Something wrong with this component
-              placeholder="Search currencies..."
-              className="h-9"
-            />
+            <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
-                {Object.entries(Currencies).map(([code, curr]) => (
+                {Object.entries(currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    // @ts-expect-error- TODO: fix value type is equal string
                     value={code}
                     onSelect={() => {
-                      // @ts-expect-error- TODO: fix value type is equal string
-                      onValueChange(value === code ? "" : code);
+                      onValueChange(value === code ? "" : code as any);
                       setOpenBottomSheet(false);
                     }}
                   >
                     <Image
                       width={16}
                       height={16}
-                      src={imageUrl(curr.code.toLowerCase())}
-                      alt={Currencies[code as keyof typeof Currencies].name}
+                      src={curr.flag || "/placeholder-flag.svg"}
+                      alt={curr.name}
                     />
                     {curr.name}
                   </CommandItem>
@@ -118,42 +116,36 @@ export function CurrencySelector({
               <Image
                 width={16}
                 height={16}
-                src={imageUrl(Currencies[value]?.code.toLowerCase())}
-                alt={Currencies[value]?.name}
+                src={currencies[value]?.flag || "/placeholder-flag.svg"}
+                alt={currencies[value]?.name || value}
               />
             ) : null}
             <span className="text-left">
-              {value ? Currencies[value]?.name : "Select currencies..."}
+              {value && currencies[value] ? currencies[value].name : "Select currencies..."}
             </span>
             <ChevronsUpDown className="opacity-50 ml-auto" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput
-              // @ts-expect-error - Something wrong with this component
-              placeholder="Search currencies..."
-              className="h-9"
-            />
+            <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
               <CommandGroup>
-                {Object.entries(Currencies).map(([code, curr]) => (
+                {Object.entries(currencies).map(([code, curr]) => (
                   <CommandItem
                     key={code}
-                    // @ts-expect-error - TODO: fix value type is equal string
                     value={`${code} ${curr.name}`}
                     onSelect={() => {
-                      // @ts-expect-error - TODO: fix value type is equal string
-                      onValueChange(value === code ? "" : code);
+                      onValueChange(value === code ? "" : code as any);
                       setOpen(false);
                     }}
                   >
                     <Image
                       width={16}
                       height={16}
-                      src={imageUrl(curr.code.toLowerCase())}
-                      alt={Currencies[code as keyof typeof Currencies].name}
+                      src={curr.flag || "/placeholder-flag.svg"}
+                      alt={curr.name}
                     />
                     {curr.name}
                   </CommandItem>

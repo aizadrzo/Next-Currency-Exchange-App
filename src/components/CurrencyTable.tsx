@@ -1,4 +1,5 @@
 import { Currency } from "@/app/types";
+import { CurrencyDictionary } from "@/lib/frankfurter";
 import {
   Table,
   TableHeader,
@@ -9,13 +10,42 @@ import {
 } from "./ui/table";
 import { Search } from "lucide-react";
 import { CurrencyTableRow } from "./CurrencyTableRow";
+import { Skeleton } from "./ui/skeleton";
+
+const CurrencyTableRowSkeleton = () => (
+  <>
+    <TableCell className="flex items-center gap-2">
+      <div className="relative w-10 h-6">
+        <Skeleton className="absolute left-0 top-0 w-6 h-6 rounded-full" />
+        <Skeleton className="absolute left-[35%] top-0 w-6 h-6 rounded-full" />
+      </div>
+      <div className="space-y-1">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-3 w-24 hidden sm:block" />
+      </div>
+    </TableCell>
+    <TableCell className="text-right">
+      <Skeleton className="h-4 w-16 ml-auto" />
+    </TableCell>
+    <TableCell className="text-right">
+      <Skeleton className="h-4 w-12 ml-auto" />
+    </TableCell>
+    <TableCell className="text-right">
+      <Skeleton className="h-4 w-14 ml-auto" />
+    </TableCell>
+  </>
+);
 
 export const CurrencyTable = ({
   data,
   search = "",
+  dict,
+  isLoading = false,
 }: {
   data: Currency[];
   search?: string;
+  dict: CurrencyDictionary;
+  isLoading?: boolean;
 }) => {
   return (
     <Table>
@@ -28,7 +58,13 @@ export const CurrencyTable = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.length < 1 && search !== "" ? (
+        {isLoading ? (
+          [...Array(10)].map((_, index) => (
+            <TableRow key={`skeleton-${index}`}>
+              <CurrencyTableRowSkeleton />
+            </TableRow>
+          ))
+        ) : data.length < 1 && search !== "" ? (
           <TableRow className="text-center hover:bg-inherit">
             <TableCell colSpan={4} className="py-10 sm:py-12">
               <div className="flex flex-col items-center justify-center space-y-4">
@@ -47,7 +83,7 @@ export const CurrencyTable = ({
         ) : (
           data?.map((curr) => (
             <TableRow key={curr.currency}>
-              <CurrencyTableRow currency={curr} />
+              <CurrencyTableRow currency={curr} dict={dict} />
             </TableRow>
           ))
         )}

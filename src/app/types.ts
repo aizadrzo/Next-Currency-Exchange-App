@@ -1,10 +1,8 @@
-import { Currencies } from "@/lib/constant";
-
 export type Currency = {
-  baseCurrency: keyof typeof Currencies;
+  baseCurrency: string;
   change: number;
   changePercentage: string;
-  currency: keyof typeof Currencies;
+  currency: string;
   rate: number;
   formatRates: string;
 };

@@ -1,37 +1,56 @@
 "use client";
 import React from "react";
-import { Currencies } from "@/lib/constant";
+import { CurrencyDictionary } from "@/lib/frankfurter";
 import { Input } from "./ui/input";
 import { CurrencySelector } from "./CurrencySelector";
 import { CurrencyTable } from "./CurrencyTable";
-import { getLatestRates } from "@/app/getLatestRates";
 import { Currency } from "@/app/types";
 
 export function CurrencyList() {
   const [search, setSearch] = React.useState("");
   const [data, setData] = React.useState<Currency[]>([]);
+  const [currenciesDict, setCurrenciesDict] = React.useState<CurrencyDictionary>({});
   const [, startTransition] = React.useTransition();
+  const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [value, setValue] = React.useState<Currency["baseCurrency"]>("EUR");
+  const [value, setValue] = React.useState<string | "">("");
 
   React.useEffect(() => {
-    const fetchData = () => {
-      startTransition(async () => {
-        try {
-          const rates = await getLatestRates(value);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const queryParam = value ? `?base=${value}` : "";
+        const [ratesRes, dictRes] = await Promise.all([
+          fetch(`/api/rates${queryParam}`),
+          fetch(`/api/currencies`)
+        ]);
+
+        if (!ratesRes.ok || !dictRes.ok) throw new Error("Network error fetching API");
+        
+        const rates: Currency[] = await ratesRes.json();
+        const dict: CurrencyDictionary = await dictRes.json();
+
+        if ("error" in rates) throw new Error((rates as any).error);
+
+        startTransition(() => {
+          setCurrenciesDict(dict);
           setData(rates);
-          setValue(rates[0]?.baseCurrency);
-        } catch (err) {
-          console.error(err);
-          setError("Failed to fetch data. Please try again later.");
-        }
-      });
+          if (!value && rates[0]?.baseCurrency) {
+            setValue(rates[0].baseCurrency);
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch data. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
   }, [value]);
 
-  if (error) <div className="text-red-500">{error}</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   const sanitizeSearch = (input: string) => {
     return input
@@ -42,8 +61,7 @@ export function CurrencyList() {
 
   const filteredData = data.filter((curr) => {
     const sanitizedSearch = sanitizeSearch(search);
-    const currencyName =
-      Currencies[curr.currency as keyof typeof Currencies].name;
+    const currencyName = currenciesDict[curr.currency]?.name || "";
 
     return (
       sanitizeSearch(curr.currency).includes(sanitizedSearch) ||
@@ -62,10 +80,12 @@ export function CurrencyList() {
             onChange={(e) => setSearch(e.target.value)}
             value={search}
           />
-          <CurrencySelector value={value} onValueChange={setValue} />
+          <CurrencySelector currencies={currenciesDict} value={value || "MYR"} onValueChange={setValue} />
         </div>
       </div>
-      <CurrencyTable data={filteredData} search={search} />
+      {Object.keys(currenciesDict).length > 0 && (
+        <CurrencyTable data={filteredData} search={search} dict={currenciesDict} isLoading={isLoading} />
+      )}
     </div>
   );
 }
