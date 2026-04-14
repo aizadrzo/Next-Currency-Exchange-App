@@ -75,7 +75,6 @@ export function CurrencySelector({
             <SheetDescription className="sr-only">Select your base currency for conversions</SheetDescription>
           </SheetHeader>
           <Command>
-            {/* @ts-expect-error CommandInput types issue */}
             <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
@@ -129,7 +128,6 @@ export function CurrencySelector({
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            {/* @ts-expect-error CommandInput types issue */}
             <CommandInput placeholder="Search currencies..." className="h-9" />
             <CommandList>
               <CommandEmpty>No currency found.</CommandEmpty>
