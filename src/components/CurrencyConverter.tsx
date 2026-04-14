@@ -2,7 +2,13 @@
 
 import React from "react";
 import { ArrowLeftRight, Loader2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { CurrencySelector } from "./CurrencySelector";
@@ -15,11 +21,14 @@ type HistoryPoint = {
 };
 
 export default function CurrencyConverter() {
-  const [amount, setAmount] = React.useState<number>(1);
+  const [amount, setAmount] = React.useState<number | "">(1);
   const [fromCurrency, setFromCurrency] = React.useState<string>("USD");
   const [toCurrency, setToCurrency] = React.useState<string>("EUR");
-  const [currenciesDict, setCurrenciesDict] = React.useState<CurrencyDictionary>({});
-  const [convertedAmount, setConvertedAmount] = React.useState<number | null>(null);
+  const [currenciesDict, setCurrenciesDict] =
+    React.useState<CurrencyDictionary>({});
+  const [convertedAmount, setConvertedAmount] = React.useState<number | null>(
+    null,
+  );
   const [rate, setRate] = React.useState<number | null>(null);
   const [history, setHistory] = React.useState<HistoryPoint[]>([]);
   const [days, setDays] = React.useState<number>(30);
@@ -50,7 +59,9 @@ export default function CurrencyConverter() {
       try {
         // We use the Frankfurter API v2 single rate endpoint logic
         // But for simplicity in the app, we can fetch from our v2 single rate or just use /rates
-        const res = await fetch(`https://api.frankfurter.dev/v2/rate/${fromCurrency}/${toCurrency}`);
+        const res = await fetch(
+          `https://api.frankfurter.dev/v2/rate/${fromCurrency}/${toCurrency}`,
+        );
         if (!res.ok) throw new Error("Failed to fetch rate");
         const data = await res.json();
         setRate(data.rate);
@@ -64,7 +75,9 @@ export default function CurrencyConverter() {
     const fetchHistory = async () => {
       setIsHistoryLoading(true);
       try {
-        const res = await fetch(`/api/history?base=${fromCurrency}&quote=${toCurrency}&days=${days}`);
+        const res = await fetch(
+          `/api/history?base=${fromCurrency}&quote=${toCurrency}&days=${days}`,
+        );
         if (!res.ok) throw new Error("Failed to fetch history");
         const data = await res.json();
         setHistory(data.history);
@@ -82,7 +95,8 @@ export default function CurrencyConverter() {
   // Update converted amount when amount or rate changes
   React.useEffect(() => {
     if (rate !== null) {
-      setConvertedAmount(amount * rate);
+      const calculationAmount = !amount || amount < 1 ? 1 : amount;
+      setConvertedAmount(calculationAmount * rate);
     }
   }, [amount, rate]);
 
@@ -94,7 +108,9 @@ export default function CurrencyConverter() {
   return (
     <Card className="w-full max-w-4xl mx-auto overflow-hidden border-none shadow-2xl bg-background/50 backdrop-blur-xl">
       <CardHeader className="pb-4">
-        <CardTitle className="text-3xl font-bold tracking-tight">Currency Converter</CardTitle>
+        <CardTitle className="text-3xl font-bold tracking-tight">
+          Currency Converter
+        </CardTitle>
         <CardDescription>
           Real-time exchange rates and historical trends.
         </CardDescription>
@@ -103,18 +119,25 @@ export default function CurrencyConverter() {
         {/* Input Controls */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="md:col-span-3 space-y-2">
-            <label className="text-sm font-medium text-muted-foreground ml-1">Amount</label>
+            <label className="text-sm font-medium text-muted-foreground ml-1">
+              Amount
+            </label>
             <Input
               type="number"
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              onChange={(e) => {
+                const val = e.target.value;
+                setAmount(val === "" ? "" : Number(val));
+              }}
               className="h-12 text-lg font-semibold"
-              placeholder="0.00"
+              placeholder="1.00"
             />
           </div>
 
           <div className="md:col-span-4 space-y-2">
-            <label className="text-sm font-medium text-muted-foreground ml-1">From</label>
+            <label className="text-sm font-medium text-muted-foreground ml-1">
+              From
+            </label>
             <CurrencySelector
               currencies={currenciesDict}
               value={fromCurrency}
@@ -134,7 +157,9 @@ export default function CurrencyConverter() {
           </div>
 
           <div className="md:col-span-4 space-y-2">
-            <label className="text-sm font-medium text-muted-foreground ml-1">To</label>
+            <label className="text-sm font-medium text-muted-foreground ml-1">
+              To
+            </label>
             <CurrencySelector
               currencies={currenciesDict}
               value={toCurrency}
@@ -148,7 +173,7 @@ export default function CurrencyConverter() {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-baseline md:items-center gap-4">
             <div className="space-y-1">
               <p className="text-sm font-medium text-muted-foreground">
-                {amount} {fromCurrency} =
+                {!amount || amount < 1 ? 1 : amount} {fromCurrency} =
               </p>
               <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-primary">
                 {isLoading ? (
@@ -163,21 +188,21 @@ export default function CurrencyConverter() {
                 </p>
               )}
             </div>
-            
+
             <div className="flex bg-background/50 p-1 rounded-lg border border-border shadow-sm">
-                {[30, 60, 90].map((d) => (
-                    <button
-                        key={d}
-                        onClick={() => setDays(d)}
-                        className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 ${
-                            days === d 
-                            ? "bg-primary text-primary-foreground shadow-sm" 
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        }`}
-                    >
-                        {d} Days
-                    </button>
-                ))}
+              {[30, 60, 90].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDays(d)}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 ${
+                    days === d
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {d} Days
+                </button>
+              ))}
             </div>
           </div>
         </div>
