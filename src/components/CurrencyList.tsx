@@ -14,41 +14,59 @@ export function CurrencyList() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [value, setValue] = React.useState<string | "">("");
+  const lastFetchedValue = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    const fetchData = async () => {
+    const fetchCurrencies = async () => {
+      try {
+        const res = await fetch("/api/currencies");
+        if (!res.ok) throw new Error("Failed to fetch currencies");
+        const dict: CurrencyDictionary = await res.json();
+        setCurrenciesDict(dict);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCurrencies();
+  }, []);
+
+  React.useEffect(() => {
+    if (Object.keys(currenciesDict).length === 0) return;
+    
+    // Skip if we already have data for this value (prevents double call on init)
+    if (lastFetchedValue.current === value) return;
+
+    const fetchRates = async () => {
       setIsLoading(true);
       try {
         const queryParam = value ? `?base=${value}` : "";
-        const [ratesRes, dictRes] = await Promise.all([
-          fetch(`/api/rates${queryParam}`),
-          fetch(`/api/currencies`)
-        ]);
+        const res = await fetch(`/api/rates${queryParam}`);
 
-        if (!ratesRes.ok || !dictRes.ok) throw new Error("Network error fetching API");
+        if (!res.ok) throw new Error("Network error fetching rates");
         
-        const rates: Currency[] = await ratesRes.json();
-        const dict: CurrencyDictionary = await dictRes.json();
-
+        const rates: Currency[] = await res.json();
         if ("error" in rates) throw new Error((rates as any).error);
 
+        lastFetchedValue.current = value;
+
         startTransition(() => {
-          setCurrenciesDict(dict);
           setData(rates);
           if (!value && rates[0]?.baseCurrency) {
-            setValue(rates[0].baseCurrency);
+            const detectedBase = rates[0].baseCurrency;
+            lastFetchedValue.current = detectedBase; // Sync ref before state update to skip re-fetch
+            setValue(detectedBase);
           }
         });
       } catch (err) {
         console.error(err);
-        setError("Failed to fetch data. Please try again later.");
+        setError("Failed to fetch rates. Please try again later.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, [value]);
+    fetchRates();
+  }, [value, currenciesDict]);
 
   if (error) return <div className="text-red-500">{error}</div>;
 

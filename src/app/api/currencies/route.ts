@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCurrencies } from "@/lib/frankfurter";
 
+export const dynamic = "force-static";
+export const revalidate = false;
+
 export async function GET() {
   try {
     const currencies = await getCurrencies();

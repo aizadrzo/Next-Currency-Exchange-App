@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrencies } from "@/lib/frankfurter";
 import { Currency } from "@/app/types";
 
-type CurrencyRates = {
-  [currency: string]: number;
-};
+export const revalidate = 3600;
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     let base = searchParams.get("base");
-    const dynamicDict = await getCurrencies();
+    
+    // Start fetching dictionary early to avoid waterfall
+    const dictPromise = getCurrencies();
 
     // Location detection if base is not explicitly provided
     if (!base) {
+      const dynamicDict = await dictPromise;
       const countryCode = request.headers.get("x-vercel-ip-country");
       let detectedCurrency: string | null = null;
       
@@ -26,24 +27,25 @@ export async function GET(request: NextRequest) {
         }
       }
       
-      // Default fallback if neither base nor country is detected/matched
       base = detectedCurrency || "MYR"; 
     }
 
     const today = new Date();
     const copyOfToday = new Date(today);
-    // Fetch 60 days of data to ensure we hit a "yesterday" value (in case of weekends/holidays)
     copyOfToday.setDate(today.getDate() - 60);
     const daysAgo = copyOfToday.toISOString().split("T")[0];
 
-    // Use v2 endpoint of Frankfurter API
+    // Use v2 endpoint
     const frankfurterApiUrl = `https://api.frankfurter.dev/v2/rates?from=${daysAgo}&base=${base}`;
     
-    // Cached fetch targeting 1 hour revalidation
-    const response = await fetch(frankfurterApiUrl, {
-      headers: { "Accept": "application/json" },
-      next: { revalidate: 3600 }
-    });
+    // Fetch remaining data in parallel
+    const [dynamicDict, response] = await Promise.all([
+      dictPromise,
+      fetch(frankfurterApiUrl, {
+        headers: { "Accept": "application/json" },
+        next: { revalidate: 3600 }
+      })
+    ]);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch data from Frankfurter API: ${response.statusText}`);
@@ -70,8 +72,6 @@ export async function GET(request: NextRequest) {
       if (row.date === latestDate) latestRates[row.quote] = row.rate;
     });
 
-    const baseCurrency = base;
-
     const data: Currency[] = Object.entries(latestRates)
       .map(([currency, rate]) => {
       const previousRate = yesterdayRate[currency] ?? null;
@@ -80,16 +80,14 @@ export async function GET(request: NextRequest) {
         ? ((change / previousRate) * 100).toFixed(2)
         : "N/A";
       
-      const currencyMetadata = dynamicDict[currency];
       const locale = "en-US";
-
       const formatRates = new Intl.NumberFormat(locale, {
         style: "currency",
         currency: currency,
       }).format(rate);
 
       return {
-        baseCurrency: baseCurrency,
+        baseCurrency: base as string,
         currency: currency,
         rate,
         change,
@@ -98,7 +96,6 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Return the payload
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error in rates API: ", error);
