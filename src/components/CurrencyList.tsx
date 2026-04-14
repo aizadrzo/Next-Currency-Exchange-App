@@ -50,7 +50,7 @@ export function CurrencyList() {
     fetchData();
   }, [value]);
 
-  if (error) <div className="text-red-500">{error}</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   const sanitizeSearch = (input: string) => {
     return input
