@@ -11,11 +11,13 @@ export function CurrencyList() {
   const [data, setData] = React.useState<Currency[]>([]);
   const [currenciesDict, setCurrenciesDict] = React.useState<CurrencyDictionary>({});
   const [, startTransition] = React.useTransition();
+  const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [value, setValue] = React.useState<string | "">("");
 
   React.useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       try {
         const queryParam = value ? `?base=${value}` : "";
         const [ratesRes, dictRes] = await Promise.all([
@@ -40,6 +42,8 @@ export function CurrencyList() {
       } catch (err) {
         console.error(err);
         setError("Failed to fetch data. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -80,7 +84,7 @@ export function CurrencyList() {
         </div>
       </div>
       {Object.keys(currenciesDict).length > 0 && (
-        <CurrencyTable data={filteredData} search={search} dict={currenciesDict} />
+        <CurrencyTable data={filteredData} search={search} dict={currenciesDict} isLoading={isLoading} />
       )}
     </div>
   );
